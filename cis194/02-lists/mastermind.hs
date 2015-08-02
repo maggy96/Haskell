@@ -11,4 +11,9 @@ exactMatches (x:xs) (y:ys)
   | otherwise = exactMatches xs ys
 
 countColors :: Code -> [Int]
-countColors xs = map (\x -> exactMatches (replicate (length xs) x) xs) colors 
+countColors xs = map (\x -> exactMatches (replicate (length xs) x) xs) colors
+
+matches :: Code -> Code -> Int
+matches xs ys = min (countColors xs) (countColors ys)
+  where min (x:xs) (y:ys) = minimum [x, y] + min xs ys
+        min [] [] = 0
