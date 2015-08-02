@@ -1,6 +1,9 @@
 data Peg = Red | Green | Blue | Yellow | Orange | Purple
   deriving (Eq, Show)
 type Code = [Peg]
+data Move = Move Code Int Int 
+  deriving (Eq, Show)
+
 
 colors = [Red, Green, Blue, Yellow, Orange, Purple]
 
@@ -17,3 +20,9 @@ matches :: Code -> Code -> Int
 matches xs ys = min (countColors xs) (countColors ys)
   where min (x:xs) (y:ys) = minimum [x, y] + min xs ys
         min [] [] = 0
+
+getMove :: Code -> Code -> Move
+getMove x y = Move y (exactMatches x y) (matches x y - exactMatches x y)
+
+isConsistent :: Move -> Code -> Bool
+isConsistent m@(Move xs a b) ys = getMove ys xs == m
