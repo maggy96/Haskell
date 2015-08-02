@@ -1,5 +1,5 @@
 myLast :: [a] -> a
-myLast x = head (reverse x)
+myLast = head . reverse
 
 myButLast :: [a] -> a
 myButLast x = x !! (length x - 2)
@@ -8,7 +8,7 @@ elementAt :: [a] -> Int -> a
 elementAt list i = list !! (i - 1)
 
 myLength :: [a] -> Int
-myLength x = sum [1 | _ <- x]
+myLength xs = sum [1 | _ <- xs]
 
 myReverse :: [a] -> [a]
 myReverse xs = case xs of
@@ -16,7 +16,7 @@ myReverse xs = case xs of
         (x:xs) -> myReverse xs ++ [x]
 
 isPalindrome :: Eq a => [a] -> Bool
-isPalindrome x = x == myReverse x
+isPalindrome xs = xs == myReverse xs
 
 compress (x:ys@(y:_))
     | x == y    = compress ys
