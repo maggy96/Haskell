@@ -42,9 +42,25 @@ empty :: State
 empty _ = 0
 
 -- Exercise 2 -----------------------------------------
+bToI :: Bool -> Int
+bToI x = if x then 1 else 0
 
 evalE :: State -> Expression -> Int
-evalE = undefined
+evalE s (Var x) = s x
+evalE _ (Val x) = x
+evalE s (Op x bop y) =
+  case bop of
+    Plus   -> expr + expr2
+    Minus  -> expr - expr2
+    Times  -> expr * expr2
+    Divide -> div expr expr2
+    Gt  -> bToI $ expr > expr2
+    Ge  -> bToI $ expr >= expr2
+    Lt  -> bToI $ expr < expr2
+    Le  -> bToI $ expr <= expr2
+    Eql -> bToI $ expr == expr2
+  where expr  = evalE s x
+        expr2 = evalE s y
 
 -- Exercise 3 -----------------------------------------
 
