@@ -25,12 +25,15 @@ getMove x y = let exact = exactMatches x y
               in  Move y exact $ matches x y - exact
 
 isConsistent :: Move -> Code -> Bool
-isConsistent m@(Move xs a b) = (==) m . flip getMove xs
+isConsistent m@(Move xs _ _) = (==) m . flip getMove xs
 
 allCodes :: Int -> [Code] 
 allCodes 2 = sequence [colors, colors]
 allCodes n = let codes = allCodes $ n - 1
              in  [ x : y | x <- colors, y <- codes ]
+
+filterCodes :: Move -> [Code] -> [Code]
+filterCodes m xs = filter (isConsistent m) xs
 
 solve :: Code -> [Move]
 solve code = guess (allCodes $ length code) []
