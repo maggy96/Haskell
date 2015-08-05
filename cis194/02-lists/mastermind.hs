@@ -1,3 +1,5 @@
+module HW02 where
+
 data Peg = Red | Green | Blue | Yellow | Orange | Purple deriving (Eq, Show)
 type Code = [Peg]
 data Move = Move Code Int Int deriving (Eq, Show)
