@@ -54,9 +54,9 @@ evalE s (Op x bop y) =
     Minus  -> expr - expr2
     Times  -> expr * expr2
     Divide -> div expr expr2
-    Gt  -> bToI $ expr > expr2
+    Gt  -> bToI $ expr >  expr2
     Ge  -> bToI $ expr >= expr2
-    Lt  -> bToI $ expr < expr2
+    Lt  -> bToI $ expr <  expr2
     Le  -> bToI $ expr <= expr2
     Eql -> bToI $ expr == expr2
   where expr  = evalE s x
