@@ -36,7 +36,11 @@ plus (P p1) (P p2) = P (addPoly p1 p2)
 -- Exercise 5 -----------------------------------------
 
 times :: Num a => Poly a -> Poly a -> Poly a
-times = undefined
+times (P p1) (P p2) = foldl (+) (P [0]) $ multiply p1 p2 
+    where
+    multiply [] _ = []
+    multiply (y:ys) zs 
+        = (P (map (* y) zs)) : (multiply ys (0 : zs))
 
 -- Exercise 6 -----------------------------------------
 
