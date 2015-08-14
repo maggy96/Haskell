@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
 module HW04 where
 
 newtype Poly a = P [a]
@@ -68,9 +67,11 @@ class Num a => Differentiable a where
     deriv  = undefined --(p:ps) = ps
     nderiv :: Int -> a -> a
     nderiv 1 n = deriv n
-    nderiv n s = nderiv (n - 1) s
+    nderiv n s = deriv(nderiv (n - 1) s)
 
 -- Exercise 9 -----------------------------------------
 
 instance Num a => Differentiable (Poly a) where
-    deriv = undefined
+    deriv (P a) =  P $ helper (tail a) 1
+        where helper [] _ = []
+              helper (h:t) n = (n*h):(helper t (n+1))
