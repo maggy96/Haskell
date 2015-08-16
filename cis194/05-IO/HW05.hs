@@ -52,8 +52,9 @@ filterT _ _ = Nothing
 -- Exercise 5 -----------------------------------------
 
 getFlow :: [Transaction] -> Map String Integer
-getFlow = undefined
-
+getFlow transactions = flow transactions Map.empty
+  where flow (x:xs) m = flow xs (Map.insertWith (-) (from x) (amount x) (Map.insertWith (+) (to x) (amount x)  m))
+        flow [] m = m
 -- Exercise 6 -----------------------------------------
 
 getCriminal :: Map String Integer -> String
