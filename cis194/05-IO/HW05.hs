@@ -9,6 +9,7 @@ import System.Environment (getArgs)
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.Map.Strict as Map
 
+import qualified Data.List as L
 import Parser
 import Data.Bits
 
@@ -58,8 +59,7 @@ getFlow transactions = flow transactions Map.empty
 -- Exercise 6 -----------------------------------------
 
 getCriminal :: Map String Integer -> String
-getCriminal m =
-  fst $ Map.foldrWithKey (\x e r-> if e > (snd r) then (x,e) else r) ("",0) m
+getCriminal = fst . last . L.sortOn snd . Map.toList
 
 -- Exercise 7 -----------------------------------------
 
