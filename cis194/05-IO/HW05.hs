@@ -58,7 +58,8 @@ getFlow transactions = flow transactions Map.empty
 -- Exercise 6 -----------------------------------------
 
 getCriminal :: Map String Integer -> String
-getCriminal = undefined
+getCriminal m =
+  fst $ Map.foldrWithKey (\x e r-> if e > (snd r) then (x,e) else r) ("",0) m
 
 -- Exercise 7 -----------------------------------------
 
