@@ -46,8 +46,7 @@ getBadTs victimsPath transactionsPath = do
   return $ filterT victims transactions
 
 filterT :: Maybe [TId] -> Maybe [Transaction] -> Maybe [Transaction]
-filterT (Just v) (Just t) = 
-  Just $ filter (\x -> elem (tid x) v) t
+filterT (Just v) (Just t) = Just $ filter (\x -> elem (tid x) v) t
 filterT _ _ = Nothing
 
 -- Exercise 5 -----------------------------------------
@@ -86,22 +85,21 @@ doEverything dog1 dog2 trans vict fids out = do
       case mids of
         Nothing  -> error "No ids"
         Just ids -> do
-          let flow = getFlow ts       
+          let flow = getFlow ts
           writeJSON out (undoTs flow ids)
           return (getCriminal flow)
 
 main :: IO ()
 main = do
   args <- getArgs
-  crim <- 
+  crim <-
     case args of
       dog1:dog2:trans:vict:ids:out:_ ->
           doEverything dog1 dog2 trans vict ids out
-      _ -> doEverything "dog-original.jpg"
-                        "dog.jpg"
-                        "transactions.json"
-                        "victims.json"
-                        "new-ids.json"
-                        "new-transactions.json"
+      _ -> doEverything "clues/dog-original.jpg"
+                        "clues/dog.jpg"
+                        "clues/transactions.json"
+                        "clues/victims.json"
+                        "clues/new-ids.json"
+                        "clues/new-transactions.json"
   putStrLn crim
-
