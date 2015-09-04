@@ -49,21 +49,27 @@ sInterleave :: Stream a -> Stream a -> Stream a
 sInterleave (Cons x xs) b = Cons x $ sInterleave b xs 
 
 sTake :: Int -> Stream a -> [a]
+sTake 0 _ = []
 sTake n (Cons x xs) = x : sTake (n - 1) xs
 
 -- Exercise 6 -----------------------------------------
 
 nats :: Stream Integer
-nats = undefined
+nats = sIterate (+1) 0 
 
 ruler :: Stream Integer
 ruler = undefined
 
 -- Exercise 7 -----------------------------------------
 
+listToStream (x:xs) = Cons x (listToStream xs)
+
 -- | Implementation of C rand
 rand :: Int -> Stream Int
-rand = undefined
+rand n = listToStream $ map (prettyRand n) [0..]
+
+prettyRand r 0 = (1103515245 * r + 12345) `mod` 2147483648
+prettyRand r n = (1103515245 * (prettyRand r (n - 1)) + 12345) `mod` 2147483648
 
 -- Exercise 8 -----------------------------------------
 
