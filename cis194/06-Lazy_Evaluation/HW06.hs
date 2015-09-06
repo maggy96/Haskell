@@ -40,13 +40,13 @@ instance Functor Stream where
 -- Exercise 5 -----------------------------------------
 
 sRepeat :: a -> Stream a
-sRepeat x = Cons x $ sRepeat x 
+sRepeat x = Cons x $ sRepeat x
 
 sIterate :: (a -> a) -> a -> Stream a
-sIterate f x = Cons x $ sIterate f $ f x 
+sIterate f x = Cons x $ sIterate f $ f x
 
 sInterleave :: Stream a -> Stream a -> Stream a
-sInterleave (Cons x xs) b = Cons x $ sInterleave b xs 
+sInterleave (Cons x xs) b = Cons x $ sInterleave b xs
 
 sTake :: Int -> Stream a -> [a]
 sTake 0 _ = []
@@ -55,7 +55,7 @@ sTake n (Cons x xs) = x : sTake (n - 1) xs
 -- Exercise 6 -----------------------------------------
 
 nats :: Stream Integer
-nats = sIterate (+1) 0 
+nats = sIterate (+1) 0
 
 ruler :: Stream Integer
 ruler = undefined
@@ -65,6 +65,7 @@ ruler = undefined
 listToStream (x:xs) = Cons x (listToStream xs)
 
 -- | Implementation of C rand
+
 rand :: Int -> Stream Int
 rand n = listToStream $ map (prettyRand n) [0..]
 
@@ -82,7 +83,13 @@ minMaxSlow xs = Just (minimum xs, maximum xs)
 
 {- Total Memory in use: ??? MB -}
 minMax :: [Int] -> Maybe (Int, Int)
-minMax = undefined
+minMax (x:xs) = minMaxHelper xs (x, x)
+  where
+    minMaxHelper [] pair = Just pair
+    minMaxHelper (x:xs) (a, b)
+      | x < a = minMaxHelper xs (x, b)
+      | x > b = minMaxHelper xs (a, x)
+      | otherwise = minMaxHelper xs (a, b)
 
 main :: IO ()
 main = print $ minMaxSlow $ sTake 1000000 $ rand 7666532
