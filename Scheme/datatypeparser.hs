@@ -1,7 +1,9 @@
 import Control.Monad
 import Text.ParserCombinators.Parsec hiding (spaces)
 import System.Environment
+import Data.Ratio
 import Numeric
+import Data.Complex
 
 symbol :: Parser Char
 symbol = oneOf "!$%&|*+-/:<=>?@^_~"
@@ -26,7 +28,10 @@ data LispVal = Atom String
              | String String
              | Bool Bool
              | Character Char
-            deriving Show
+             | Float Double
+             | Ratio Rational
+             | Complex (Complex Double)
+             deriving Show
 
 escapedChars :: Parser Char
 escapedChars = do char '\\'
@@ -48,22 +53,29 @@ parseCharacter = do
   string "#\\"
   x <- many $ anyChar 
   return $ case x of
-         "space" -> Character ' '
-         "newline" -> Character '\n'
-         _ -> Character (x !! 0)
+             "space" -> Character ' '
+             "newline" -> Character '\n'
+             _ -> Character (x !! 0)
 
 parseString :: Parser LispVal
-parseString = do
-                char '"'
-                x <- many (escapedChars <|> noneOf "\"\\")
-                char '"'
-                return $ String x
+parseString = do char '"'
+                 x <- many (escapedChars <|> noneOf "\"\\")
+                 char '"'
+                 return $ String x
 
 parseAtom :: Parser LispVal
-parseAtom = do 
-              first <- letter <|> symbol
-              rest <- many (letter <|> digit <|> symbol)
-              return $ Atom $ first:rest
+parseAtom = do first <- letter <|> symbol
+               rest <- many (letter <|> digit <|> symbol)
+               return $ Atom $ first:rest
+
+parseList :: Parser LispVal
+parseList = liftM List $ sepBy parseExpr spaces
+
+parseDottedList :: Parser LispVal
+parseDottedList = do
+    head <- endBy parseExpr spaces
+    tail <- char '.' >> spaces >> parseExpr
+    return $ DottedList head tail
 
 parseNumber :: Parser LispVal
 parseNumber = parseDecimal <|> parseHex <|> parseOct <|> parseBin
@@ -71,16 +83,16 @@ parseNumber = parseDecimal <|> parseHex <|> parseOct <|> parseBin
 parseDecimal :: Parser LispVal
 parseDecimal = many1 digit >>= (return . Number . read)
 
--- parseDecimalAlt :: Parser LispVal
--- parseDecimalAlt = do try $ string "#d"
---                    x <- many1 digit
---                    return $ Number (read x)
+parseDecimalAlt :: Parser LispVal
+parseDecimalAlt = do try $ string "#d"
+                     x <- many1 digit
+                     return $ Number (read x)
 
 parseHex :: Parser LispVal
 parseHex = do try $ string "#x"
               x <- many1 hexDigit
               return $ Number (hex2dig x)
-              
+
 parseOct :: Parser LispVal
 parseOct = do try $ string "#o"
               x <- many1 octDigit
@@ -96,11 +108,37 @@ hex2dig x = fst $ readHex x !! 0
 bin2dig  = bin2dig' 0
 bin2dig' digint "" = digint
 bin2dig' digint (x:xs) = let old = 2 * digint + (if x == '0' then 0 else 1) in
-                         bin2dig' old xs
+                             bin2dig' old xs
+
+parseFloat :: Parser LispVal
+parseFloat = do x <- many1 digit
+                char '.'
+                y <- many1 digit
+                return $ Float (fst.head $ readFloat (x ++ "." ++ y)) 
+
+parseRatio :: Parser LispVal
+parseRatio = do x <- many1 digit
+                char '/'
+                y <- many1 digit
+                return $ Ratio ((read x) % (read y))
+
+parseComplex :: Parser LispVal
+parseComplex = do x <- (try parseFloat <|> parseDecimal)
+                  sign <- oneOf "+-"
+                  y <- (try parseFloat <|> parseDecimal)
+                  char 'i'
+                  return $ Complex (toDouble x :+ toDouble y)
+
+toDouble :: LispVal -> Double
+toDouble(Float f) = realToFrac f
+toDouble(Number n) = fromIntegral n
 
 parseExpr :: Parser LispVal
 parseExpr = parseAtom
          <|> parseString
+         <|> try parseComplex
+         <|> try parseRatio
+         <|> try parseFloat
          <|> try parseNumber
          <|> try parseBool
          <|> try parseCharacter
