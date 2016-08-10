@@ -77,6 +77,11 @@ parseDottedList = do
     tail <- char '.' >> spaces >> parseExpr
     return $ DottedList head tail
 
+parseQuoted :: Parser LispVal
+parseQuoted = do char '\''
+                 x <- parseExpr
+                 return $ List [Atom "quote", x]
+
 parseNumber :: Parser LispVal
 parseNumber = parseDecimal <|> parseHex <|> parseOct <|> parseBin
 
@@ -133,6 +138,16 @@ toDouble :: LispVal -> Double
 toDouble(Float f) = realToFrac f
 toDouble(Number n) = fromIntegral n
 
+parseBackquote :: Parser LispVal
+parseBackquote = do char '`'
+                    x <- parseExpr
+                    return $ List [Atom "backquote", x] 
+
+parseCommaList :: Parser LispVal
+parseCommaList = do char ','
+                    x <- parseExpr
+                    return $ List [Atom "comma", x]
+
 parseExpr :: Parser LispVal
 parseExpr = parseAtom
          <|> parseString
@@ -142,3 +157,10 @@ parseExpr = parseAtom
          <|> try parseNumber
          <|> try parseBool
          <|> try parseCharacter
+         <|> parseQuoted
+         <|> parseBackquote
+         <|> parseCommaList
+         <|> do char '('
+                x <- try parseList <|> parseDottedList
+                char ')'
+                return x
